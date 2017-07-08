@@ -23,7 +23,7 @@ Output
 ExcelToHtml.exe c:\excel.xlsx.html
 ~~~
 
-# Support
+# Supported
 -  Properties: Border, Text-align, background-color, font-weight, font-size, width, white-space
 -  Horizontally Merged Cells
 -  XLSX Files 
