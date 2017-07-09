@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelToHtml", "ExcelToHtml\ExcelToHtml.csproj", "{3C6476A8-A156-4DB7-8ED5-6CD18DA32708}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelToHtml.Test", "ExcelToHtml.Test\ExcelToHtml.Test.csproj", "{CEA40B00-BF81-4005-8715-EA196476FDBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelToHtmlConsole", "ExcelToHtml.Test\ExcelToHtmlConsole.csproj", "{CEA40B00-BF81-4005-8715-EA196476FDBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
