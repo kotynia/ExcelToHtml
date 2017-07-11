@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>$author$</authors>
+    <owners>Marcin.Kotynia</owners>
+    <licenseUrl>https://github.com/marcinKotynia/ExcelToHtml/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/marcinKotynia/ExcelToHtml</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Excel To Html</description>
+    <releaseNotes>Documentation, fix</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>excel html xlsx</tags>
+
+  </metadata>
+</package>

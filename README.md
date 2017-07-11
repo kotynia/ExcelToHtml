@@ -12,11 +12,11 @@ Excel To HTML Library and Console Application
 
 # Getting Started
 
-## Library  is available as Nuget Package 
+## ExcelToHtml as a Library 
 
-Available Nuget Package https://www.nuget.org/packages/ExcelToHtml
+Download Nuget Package https://www.nuget.org/packages/ExcelToHtml
 
-~~~
+```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 
@@ -31,22 +31,24 @@ var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 
 
 string html = WorksheetHtml.Convert();
-~~~
+```
 
-## Console Application is available in 
+## ExcelToHtml as a Console Application 
 
-~~~
-ExcelToHtml.exe [Path]
+Download Latest Release https://github.com/marcinKotynia/ExcelToHtml/releases
+
+```bat
+ExcelToHtml.console.exe [Path]
 
 Sample
-ExcelToHtml.exe c:\myExcelFile.xlsx
+ExcelToHtml.console.exe c:\myExcelFile.xlsx
 
 Output
-ExcelToHtml.exe c:\myExcelFile.xlsx.html
+ExcelToHtml.console.exe c:\myExcelFile.xlsx.html
 
 Optional
 ExcelToHtml.exe c:\myExcelFile.xlsx.yaml
-~~~
+```
 
 ## Yaml File Format
 
@@ -54,7 +56,8 @@ Optional you can put file with data for example myExcelFile.xlsx.yaml
 This file will provide values for Converter
 
 Samples:
-~~~
+
+```yaml
 # Set cell to 8
 A3: 8
 # Set cell to "Sample Text Value"
@@ -65,7 +68,7 @@ A5: =A2+A3
 '[[templatefield]]': Hello Template field
 # Output value , Value in yaml file (or dictionary) will be updated to calculated value at the end
 .A5: 15
-~~~
+```
 
 # List of Unsupported Features
 - Vertical merged cells
