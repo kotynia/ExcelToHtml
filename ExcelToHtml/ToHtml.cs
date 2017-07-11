@@ -49,24 +49,30 @@ namespace ExcelToHtml
             // Row by row
             for (int row = start.Row; row <= end.Row; row++)
             {
-                sb.AppendLine("<tr>");
-                for (int col = start.Column; col <= end.Column; col++)
+                if (!WorkSheet.Row(row).Hidden)
                 {
-                    var y = WorkSheet.Column(col);
-                    var d = WorkSheet.Cells[row, col];
+                    sb.AppendLine("<tr>");
+                    for (int col = start.Column; col <= end.Column; col++)
+                    {
 
-                    int merged = 0;
+                        if (!WorkSheet.Column(col).Hidden)
+                        {
+                            var d = WorkSheet.Cells[row, col];
 
-                    if (d.Merge) //row is merged
-                        merged = d.Worksheet.SelectedRange[WorkSheet.MergedCells[row, col]].Columns;
+                            int merged = 0;
 
-                    //11 default font size
-                    var x = ProcessCellStyle(WorkSheet.Cells[row, col], WorkSheet.Column(col).Width, 11, merged);
-                    sb.AppendLine(x);
-                    if (d.Merge)
-                        col += (merged - 1);
+                            if (d.Merge) //row is merged
+                                merged = d.Worksheet.SelectedRange[WorkSheet.MergedCells[row, col]].Columns;
+
+                            //11 default font size
+                            var x = ProcessCellStyle(WorkSheet.Cells[row, col], WorkSheet.Column(col).Width, 11, merged);
+                            sb.AppendLine(x);
+                            if (d.Merge)
+                                col += (merged - 1);
+                        }
+                    }
+                    sb.AppendLine("</tr>");
                 }
-                sb.AppendLine("</tr>");
             }
 
             sb.AppendLine("</table>");

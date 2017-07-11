@@ -4,7 +4,7 @@ Excel To HTML Library and Console Application
 # List of Features
 - Convert Excel to HTML
 	- Support for .xlsx format (Microsoft Office 2007+) 
-	- Excel Properties: Border, Text-align, background-color(*), font-weight, font-size, width, white-space
+	- Excel Properties: Border, Text-align, background-color(*), font-weight, font-size, width, white-space, hidden column and rows
 	- Horizontal Merged Cells
 	- Injection safe
 - Optional INPUT/OUTPUT dataset (see Yaml File Format)

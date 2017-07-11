@@ -8,12 +8,12 @@ namespace ExcelToHtml.CL
     {
         static void Main(string[] args)
         {
-            //string localRepository = Directory.GetCurrentDirectory();
-            //string fullPath = String.Join("", args); 
-
-            //TEST!!!
-            // string ExcelPath = @"c:\git\ExcelToHtml\Test\Book1.xlsx";
             string ExcelPath = String.Join("", args);
+
+#if DEBUG //TEST  
+            ExcelPath = @"c:\git\ExcelToHtml\Test\test1.xlsx";
+#endif
+
             string DataPath = ExcelPath + ".yaml";
             string HtmlPath = ExcelPath + ".html";
 
