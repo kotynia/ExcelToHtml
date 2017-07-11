@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace ExcelToHtmlConsole
+namespace ExcelToHtml.CL
 {
     class Program
     {
         static void Main(string[] args)
         {
-
-
             //string localRepository = Directory.GetCurrentDirectory();
             //string fullPath = String.Join("", args); 
 
             //TEST!!!
-            string ExcelPath = @"c:\git\ExcelToHtml\Test\Book1.xlsx";
+            // string ExcelPath = @"c:\git\ExcelToHtml\Test\Book1.xlsx";
+            string ExcelPath = String.Join("", args);
             string DataPath = ExcelPath + ".yaml";
             string HtmlPath = ExcelPath + ".html";
 
@@ -22,13 +21,15 @@ namespace ExcelToHtmlConsole
             Console.WriteLine("Usage: ExcelToHtml.exe [Path] ");
             Console.WriteLine("Usage: ExcelToHtml.exe c:\\book.xls ");
 
-            //try
-            //{
+
+
+            try
+            {
                 //Read Excel File 
                 FileInfo ExcelFile = new FileInfo(ExcelPath);
 
 
-                var WorksheetHtml = new ExcelToHtml(ExcelFile);
+                var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
 
 
                 //Read Data Simple JSON cell,value
@@ -39,11 +40,16 @@ namespace ExcelToHtmlConsole
                 }
                 else
                 {
-                    //Read Data From Yaml
-                    Dictionary<string, string> values = new Dictionary<string, string>();
+
+                    //Dictionary<string, string> Cells = new Dictionary<string, string>();
+                    //InputOutput.Add("A1", "Hello World");  //set hello world
+                    //InputOutput.Add("A2", "=2+1");  //set formula
+                    //InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Filed
+                    //InputOutput.Add(".A2", null);  //Output value form A2
 
                     string Data = File.ReadAllText(DataPath);
 
+                    //Read Data From Yaml
                     var DeSerializer = new YamlDotNet.Serialization.Deserializer();
                     Dictionary<string, string> Cells = DeSerializer.Deserialize<Dictionary<string, string>>(Data);
 
@@ -54,21 +60,21 @@ namespace ExcelToHtmlConsole
                     string Yaml = Serializer.Serialize(output);
 
                     //For Debug Purpose output
-                    File.WriteAllText(DataPath,Yaml);
+                    File.WriteAllText(DataPath, Yaml);
 
                 }
 
 
-                string html = WorksheetHtml.ToHtml();
+                string html = WorksheetHtml.Execute();
 
                 File.WriteAllText(HtmlPath, html);
 
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("ERROR " + ex.Message);
-            //    Console.ReadKey();
-            //}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR " + ex.Message);
+                Console.ReadKey();
+            }
 
 
         }
