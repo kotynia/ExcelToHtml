@@ -12,9 +12,7 @@ Excel To HTML Library and Console Application
 
 # Getting Started
 
-## ExcelToHtml as a Library 
-
-Download Nuget Package https://www.nuget.org/packages/ExcelToHtml
+## ExcelToHtml as a Library, Nuget Package https://www.nuget.org/packages/ExcelToHtml
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
@@ -23,19 +21,19 @@ var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 
 //Optional Get Set Cells
 Dictionary<string, string> InputOutput = new Dictionary<string, string>();
-InputOutput.Add("A1", "Hello World");  					//set hello world
-InputOutput.Add("A2", "=2+1");  						//set formula
+InputOutput.Add("A1", "Hello World");  			//set hello world
+InputOutput.Add("A2", "=2+1");  			//set formula
 InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Field
-InputOutput.Add(".A2", null);  							//Output value form A2
+InputOutput.Add(".A2", null);  				//Output value form A2
 var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 
 
 string html = WorksheetHtml.Convert();
 ```
 
-## ExcelToHtml as a Console Application 
+## ExcelToHtml as a Console Application Download https://github.com/marcinKotynia/ExcelToHtml/releases
 
-Download Latest Release https://github.com/marcinKotynia/ExcelToHtml/releases
+How to use:
 
 ```bat
 ExcelToHtml.console.exe [Path]
@@ -53,9 +51,7 @@ ExcelToHtml.exe c:\myExcelFile.xlsx.yaml
 ## Yaml File Format
 
 Optional you can put file with data for example myExcelFile.xlsx.yaml
-This file will provide values for Converter
-
-Samples:
+This file will provide values for Converter, sample body of a file
 
 ```yaml
 # Set cell to 8
@@ -97,7 +93,7 @@ https://simpleooxml.codeplex.com/ (as a extension class SpreadsheetReader does n
 ## Some technology remarks that could help you do even more :)
 - xlsx file format is zip file with embeded xml files (https://en.wikipedia.org/wiki/Office_Open_XML )
 - Libraries
- - EPPlus http://epplus.codeplex.com/ used currently 
- - ClosedXml https://github.com/ClosedXML/ClosedXML very active 
- - https://www.nuget.org/packages/DocumentFormat.OpenXml 
- - https://simpleooxml.codeplex.com/ 
+	- EPPlus http://epplus.codeplex.com/ used currently 
+	- ClosedXml https://github.com/ClosedXML/ClosedXML very active 
+	- https://www.nuget.org/packages/DocumentFormat.OpenXml 
+	- https://simpleooxml.codeplex.com/ 
