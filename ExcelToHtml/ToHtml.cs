@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using OfficeOpenXml.Style;
-using ClosedXML.Excel;
+using ClosedXML.Excel; //used from develop branch (fix with loading some template  
 
 namespace ExcelToHtml
 {
@@ -18,7 +18,7 @@ namespace ExcelToHtml
         ExcelWorksheet WorkSheet;
         IXLWorksheet closedWorksheet; //closedxml only temporary to get valid colors
         private Dictionary<string, string> TemplateFieldList;
-        private List<string> items;
+        private List<string> cellStyle;
 
         public string option_tableAtribute = "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
 
@@ -193,7 +193,7 @@ namespace ExcelToHtml
 
         private string ProcessCellStyle(ExcelRange input, double Width = -1, int FontSize = 11, int ColSpan = 0)
         {
-            items = new List<string>();
+            cellStyle = new List<string>();
 
             StringBuilder sb = new StringBuilder();
 
@@ -207,16 +207,11 @@ namespace ExcelToHtml
             PropertyToStyle("text-align", input.Style.HorizontalAlignment.ToString(), "General");
 
             //Colors
-          //  string color = colors.getColor(closedWorksheet, input.Address);
-
-            //PropertyToStyle("background-color", color);// input.Style.Fill.BackgroundColor.Rgb
-
-            //Not properly implemented in Epplus will try to use native DocumentFormat.OpenXml 
+            //Not properly implemented in Epplus 
             //PropertyToCss("background-color", String.IsNullOrEmpty(input.Style.Fill.BackgroundColor.Theme) ? "" : Theme.Default[ int.Parse(input.Style.Fill.BackgroundColor.Theme)]  );
-            PropertyToStyle("color", input.Style.Font.Color.Rgb);
+            PropertyToStyle("background-color", colors.getCellBackgroundColor(closedWorksheet, input.Address));// input.Style.Fill.BackgroundColor.Rgb          
+            PropertyToStyle("color", colors.getCellTextColor(closedWorksheet, input.Address));
 
-            //Not properly implemented in Epplus will try to use native DocumentFormat.OpenXml 
-            //PropertyToCss("color", String.IsNullOrEmpty(input.Style.Font.Color.Theme) ? "" : Theme.Default[int.Parse(input.Style.Font.Color.Theme)]);
 
             PropertyToStyle("font-weight", input.Style.Font.Bold == true ? "bold" : "");
             PropertyToStyle("font-size", input.Style.Font.Size.ToString(), "11");
@@ -224,7 +219,6 @@ namespace ExcelToHtml
 
             PropertyToStyle("white-space", input.Style.WrapText == false ? "no-wrap" : "");
 
-            // if (items.Count() > 0) //apply visual style
 
             string value = input.Text;
             if (string.IsNullOrEmpty(value))
@@ -232,12 +226,10 @@ namespace ExcelToHtml
             else
                 value = System.Net.WebUtility.HtmlEncode(value);
 
-
-
             if (ColSpan > 0)
-                sb.AppendFormat("<td style=\"{0}\" colspan=\"{1}\">{2}</td>", String.Join<string>(String.Empty, items), ColSpan, value);
+                sb.AppendFormat("<td style=\"{0}\" colspan=\"{1}\">{2}</td>", String.Join<string>(String.Empty, cellStyle), ColSpan, value);
             else
-                sb.AppendFormat("<td style=\"{0}\">{1}</td>", String.Join<string>(String.Empty, items), value);
+                sb.AppendFormat("<td style=\"{0}\">{1}</td>", String.Join<string>(String.Empty, cellStyle), value);
 
             return sb.ToString();
 
@@ -278,7 +270,7 @@ namespace ExcelToHtml
                 else
                     cssItem += " #000"; //default color if not defined
 
-                items.Add(string.Format("{0}:{1};", cssproperty, cssItem));
+                cellStyle.Add(string.Format("{0}:{1};", cssproperty, cssItem));
                 return;
             }
             else
@@ -290,14 +282,14 @@ namespace ExcelToHtml
             {
                 if (cssproperty.Contains("size") || cssproperty.Contains("width"))
                 {
-                    items.Add(string.Format("{0}:{1}px;", cssproperty, cssItem));
+                    cellStyle.Add(string.Format("{0}:{1}px;", cssproperty, cssItem));
                 }
                 else if (cssproperty.Contains("color")) //Remove First FF
                 {
-                    items.Add(string.Format("{0}:#{1};", cssproperty, cssItem.Remove(0, 2)));
+                    cellStyle.Add(string.Format("{0}:#{1};", cssproperty, cssItem.Remove(0, 2)));
                 }
                 else
-                    items.Add(string.Format("{0}:{1};", cssproperty, cssItem));
+                    cellStyle.Add(string.Format("{0}:{1};", cssproperty, cssItem));
             }
         }
     }
