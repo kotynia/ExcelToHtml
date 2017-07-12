@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using OfficeOpenXml.Style;
+using ClosedXML.Excel;
 
 namespace ExcelToHtml
 {
@@ -15,6 +16,7 @@ namespace ExcelToHtml
         private string WorksheetName = String.Empty;
         ExcelPackage Excel;
         ExcelWorksheet WorkSheet;
+        IXLWorksheet closedWorksheet; //closedxml only temporary to get valid colors
         private Dictionary<string, string> TemplateFieldList;
         private List<string> items;
 
@@ -26,10 +28,23 @@ namespace ExcelToHtml
                 throw new Exception(String.Format("File {0} Not Found", excelFile.FullName));
 
             Excel = new ExcelPackage(excelFile);
+
+            XLWorkbook workBook = new XLWorkbook(excelFile.FullName); //closedxml only temporary to get valid colors
+
+
             if (!string.IsNullOrEmpty(WorkSheetName))
+            {
                 WorkSheet = Excel.Workbook.Worksheets[WorksheetName];
+                closedWorksheet = workBook.Worksheet(WorksheetName);//closedxml only temporary to get valid colors
+            }
             else
+            {
                 WorkSheet = Excel.Workbook.Worksheets[1];
+                closedWorksheet = workBook.Worksheet(1);//closedxml only temporary to get valid colors
+            }
+
+            Theme.Init();
+
         }
 
         /// <summary>
@@ -78,6 +93,7 @@ namespace ExcelToHtml
             sb.AppendLine("</table>");
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("Total time {0}ms", elapsedMs);
 
             return string.Format("<table  style=\"{0}>\" data-cth-ms=\"{1}\" data-cth-date=\"{2}\">{3}</table>",
                 option_tableAtribute, elapsedMs, DateTime.Now, sb.ToString());
@@ -191,7 +207,9 @@ namespace ExcelToHtml
             PropertyToStyle("text-align", input.Style.HorizontalAlignment.ToString(), "General");
 
             //Colors
-            PropertyToStyle("background-color", input.Style.Fill.BackgroundColor.Rgb);
+          //  string color = colors.getColor(closedWorksheet, input.Address);
+
+            //PropertyToStyle("background-color", color);// input.Style.Fill.BackgroundColor.Rgb
 
             //Not properly implemented in Epplus will try to use native DocumentFormat.OpenXml 
             //PropertyToCss("background-color", String.IsNullOrEmpty(input.Style.Fill.BackgroundColor.Theme) ? "" : Theme.Default[ int.Parse(input.Style.Fill.BackgroundColor.Theme)]  );
@@ -250,7 +268,7 @@ namespace ExcelToHtml
                 else if (temp.Style == ExcelBorderStyle.Dotted)
                     cssItem = "dotted 1px";
                 else
-                    cssItem = "dotted 2px";
+                    cssItem = "solid 2px";
 
 
                 if (!string.IsNullOrEmpty(temp.Color.Theme))  //no idea how to get proper theme color
