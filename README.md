@@ -4,11 +4,18 @@ Excel To HTML Library and Console Application
 # List of Features
 - Convert Excel to HTML
 	- Support for .xlsx format (Microsoft Office 2007+) 
-	- Excel Properties: Border, Text-align, background-color(*), font-weight, font-size, width, white-space, hidden column and rows
+	- Excel Properties: Border, Text-align, background-color,color,font-weight, font-size, width, white-space
 	- Horizontal Merged Cells
+	- Hidden Rows and columns
+	- Comments
 	- Injection safe
 - Optional INPUT/OUTPUT dataset (see Yaml File Format)
 - Support for Functions  ( https://epplus.codeplex.com/wikipage?title=Supported%20Functions&referringTitle=Documentation )
+
+## Road Map
+- List<> to Excel Range
+- Better handling Border Colors
+
 
 # Getting Started
 
@@ -75,8 +82,8 @@ A5: =A2+A3
 
 ## List of Unsupported Features
 - Vertical merged cells
-- System Background Colors and Themes
 - Charts
+- Images
 
 ## Colors and Themes
 Getting color for a font, background is really challenging.
