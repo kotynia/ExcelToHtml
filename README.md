@@ -8,7 +8,7 @@ Excel To HTML Library and Console Application
 	- Horizontal Merged Cells
 	- Injection safe
 - Optional INPUT/OUTPUT dataset (see Yaml File Format)
-- Support of Excel functions in Formulas  ( https://epplus.codeplex.com/wikipage?title=Supported%20Functions&referringTitle=Documentation )
+- Support for Functions  ( https://epplus.codeplex.com/wikipage?title=Supported%20Functions&referringTitle=Documentation )
 
 # Getting Started
 
@@ -18,20 +18,22 @@ Excel To HTML Library and Console Application
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 
+//Optional set custom style for table
+//WorksheetHtml.TableStyle =" " ; default "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
 
 //Optional Get Set Cells
-Dictionary<string, string> InputOutput = new Dictionary<string, string>();
-InputOutput.Add("A1", "Hello World");  			//set hello world
-InputOutput.Add("A2", "=2+1");  			//set formula
-InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Field
-InputOutput.Add(".A2", null);  				//Output value form A2
-var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
+//Dictionary<string, string> InputOutput = new Dictionary<string, string>();
+//InputOutput.Add("A1", "Hello World");  			//set hello world
+//InputOutput.Add("A2", "=2+1");  			//set formula
+//InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Field
+//InputOutput.Add(".A2", null);  				//Output value form A2
+//var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 
 
 string html = WorksheetHtml.Convert();
 ```
 
-## ExcelToHtml as a Console Application Download https://github.com/marcinKotynia/ExcelToHtml/releases
+## ExcelToHtml as a Console Application, Download https://github.com/marcinKotynia/ExcelToHtml/releases
 
 How to use:
 
@@ -48,10 +50,11 @@ Optional
 ExcelToHtml.exe c:\myExcelFile.xlsx.yaml
 ```
 
-## Yaml File Format
+# Getting Pro
+
+## Parameters from Text file (Yaml)
 
 Optional you can put file with data for example myExcelFile.xlsx.yaml
-This file will provide values for Converter, sample body of a file
 
 ```yaml
 # Set cell to 8
@@ -66,29 +69,45 @@ A5: =A2+A3
 .A5: 15
 ```
 
-# List of Unsupported Features
+
+
+# Technical
+
+## List of Unsupported Features
 - Vertical merged cells
 - System Background Colors and Themes
 - Charts
 
-## *System Background Colors and Themes
-Getting background color for a cell i really challenging.
-There are 4 different scenarios which require different aproach
+## Colors and Themes
+Getting color for a font, background is really challenging.
+There are 3 different scenarios 
 
-1. Themes
-2. System Colors 
-3. Manual selection from color picker (should be also system color)
-4. Selecting other color than system manually from colorpicker.
+1. Themes (Supported only default theme)
+2. System Colors with Index (supported)
+3. RGB colors (supported)
 
-Unfortunettly at the moment ExcelToHtml works with scenario 4.
-workaround for other three is  manually switch color from color palette to manual colors.
-Option could be to create macro for that.
-Hope in near future to implement native parser and extend library.
 
-Next step will be implement
-https://stackoverflow.com/questions/10756206/getting-cell-backgroundcolor-in-excel-with-open-xml-2-0
-https://simpleooxml.codeplex.com/ (as a extension class SpreadsheetReader does not exists in OpenXML 2.5 )
+This script will convert background color to rgb colors if you use custom theme.
 
+```vb
+Sub SheetBackgroundColorsToRgb()
+
+Application.ScreenUpdating = False
+
+'iterate
+    For Each Cell In ActiveSheet.UsedRange.Cells
+        'If Cell.Interior.Color > 0 Then
+        'RGB
+        Dim colorVal As Variant
+        colorVal = Cell.Interior.Color
+        Cell.Interior.Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
+        'End If
+    Next
+    
+Application.ScreenUpdating = True
+
+End Sub
+```
 
 ## Some technology remarks that could help you do even more :)
 - xlsx file format is zip file with embeded xml files (https://en.wikipedia.org/wiki/Office_Open_XML )
@@ -97,3 +116,4 @@ https://simpleooxml.codeplex.com/ (as a extension class SpreadsheetReader does n
 	- ClosedXml https://github.com/ClosedXML/ClosedXML very active 
 	- https://www.nuget.org/packages/DocumentFormat.OpenXml 
 	- https://simpleooxml.codeplex.com/ 
+	
