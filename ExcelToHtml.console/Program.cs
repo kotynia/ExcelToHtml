@@ -11,7 +11,7 @@ namespace ExcelToHtml.CL
             string ExcelPath = String.Join("", args);
 
 #if DEBUG //TEST  
-            ExcelPath = @"c:\git\ExcelToHtml\Test\test1.xlsx";
+            ExcelPath = @"c:\git\ExcelToHtml\Test\test4.xlsx";
 #endif
 
             string DataPath = ExcelPath + ".yaml";
@@ -58,7 +58,7 @@ namespace ExcelToHtml.CL
 
                     var Serializer = new YamlDotNet.Serialization.Serializer();
                     string Yaml = Serializer.Serialize(output);
-                    
+
 
                     File.WriteAllText(DataPath, Yaml);
 
@@ -67,8 +67,13 @@ namespace ExcelToHtml.CL
 
                 string html = WorksheetHtml.Execute();
 
+                Console.WriteLine("File Saved {0}", HtmlPath);
                 File.WriteAllText(HtmlPath, html);
+
+#if DEBUG //TEST  
                 Console.ReadKey();
+#endif
+
             }
             catch (Exception ex)
             {

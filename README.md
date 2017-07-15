@@ -4,7 +4,7 @@ Excel To HTML Library and Console Application
 # List of Features
 - Convert Excel to HTML
 	- Support for .xlsx format (Microsoft Office 2007+) 
-	- Excel Properties: Border, Text-align, background-color,color,font-weight, font-size, width, white-space
+	- Excel Properties: Border,border collor, Text-align, background-color, color, font-weight, font-size, width, white-space
 	- Horizontal Merged Cells
 	- Hidden Rows and columns
 	- Comments
@@ -94,7 +94,8 @@ There are 3 different scenarios
 3. RGB colors (supported)
 
 
-This script will convert background color to rgb colors if you use custom theme.
+This script will convert background color and font color to rgb colors if you use custom theme
+and colour differ. To use open file in Excel select Alt+F11 Paste and Run code using F5
 
 ```vb
 Sub SheetBackgroundColorsToRgb()
@@ -103,15 +104,45 @@ Application.ScreenUpdating = False
 
 'iterate
     For Each Cell In ActiveSheet.UsedRange.Cells
-        'If Cell.Interior.Color > 0 Then
-        'RGB
+    
+		'Background
         Dim colorVal As Variant
         colorVal = Cell.Interior.Color
         Cell.Interior.Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
-        'End If
+        
+        'Font color
+        colorVal = Cell.Font.Color
+        If (Not colorVal) Then
+        Cell.Font.Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
+        End If
+        
+        'Borders     
+        colorVal = Cell.Borders(xlEdgeBottom).Color
+        If (Not colorVal) Then
+        Cell.Borders(xlEdgeBottom).Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
+        End If
+        
+        colorVal = Cell.Borders(xlEdgeRight).Color
+        If (Not colorVal) Then
+        Cell.Borders(xlEdgeRight).Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
+        End If
+        
+        colorVal = Cell.Borders(xlEdgeTop).Color
+        If (Not colorVal) Then
+        Cell.Borders(xlEdgeTop).Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
+        End If
+        
+        colorVal = Cell.Borders(xlEdgeLeft).Color
+        If (Not colorVal) Then
+        Cell.Borders(xlEdgeLeft).Color = RGB((colorVal Mod 256), ((colorVal \ 256) Mod 256), (colorVal \ 65536))
+        End If
+        
     Next
     
 Application.ScreenUpdating = True
+
+End Sub
+
 
 End Sub
 ```
