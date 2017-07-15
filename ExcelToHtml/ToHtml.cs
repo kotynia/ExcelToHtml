@@ -21,8 +21,8 @@ namespace ExcelToHtml
         ExcelWorksheet WorkSheet;
         IXLWorksheet closedWorksheet; //closedxml  to get valid colors
         private Dictionary<string, string> TemplateFieldList;
-        private Dictionary<string,string> cellStyles;
-        
+        private Dictionary<string, string> cellStyles;
+
 
         public ToHtml(FileInfo excelFile, string WorkSheetName = null)
         {
@@ -44,7 +44,7 @@ namespace ExcelToHtml
                 WorkSheet = Excel.Workbook.Worksheets[1];
                 closedWorksheet = workBook.Worksheet(1);//closedxml only temporary to get valid colors
             }
-            Theme  = ExcelToHtml.Theme.Init();
+            Theme = ExcelToHtml.Theme.Init();
 
         }
 
@@ -194,23 +194,25 @@ namespace ExcelToHtml
 
         private string ProcessCellStyle(ExcelRange input, double Width = -1, int FontSize = 11, int ColSpan = 0)
         {
-            cellStyles = new Dictionary<string,string>();
+            cellStyles = new Dictionary<string, string>();
 
             StringBuilder sb = new StringBuilder();
 
+
             //Border
-            PropertyToStyle("border-top", input.Style.Border.Top);
-            PropertyToStyle("border-right", input.Style.Border.Right);
-            PropertyToStyle("border-bottom", input.Style.Border.Bottom);
-            PropertyToStyle("border-left", input.Style.Border.Left);
+            PropertyToStyle("border-top", input.Style.Border.Top, cellAddress: input.Address);
+            PropertyToStyle("border-right", input.Style.Border.Right, cellAddress: input.Address);
+            PropertyToStyle("border-bottom", input.Style.Border.Bottom, cellAddress: input.Address);
+            PropertyToStyle("border-left", input.Style.Border.Left, cellAddress: input.Address);
 
             //Align
             PropertyToStyle("text-align", input.Style.HorizontalAlignment.ToString(), "General");
 
             //Colors
             //Not properly implemented in Epplus  using ClosedXML
-            PropertyToStyle("background-color", getCellBackgroundColor( input.Address));        
-            PropertyToStyle("color", getCellTextColor( input.Address));
+
+            PropertyToStyle("background-color", getColor(input.Address, "background-color"));
+            PropertyToStyle("color", getColor(input.Address, "color"));
 
 
             PropertyToStyle("font-weight", input.Style.Font.Bold == true ? "bold" : "");
@@ -228,21 +230,21 @@ namespace ExcelToHtml
 
 
 
-        string comment   = (input.Comment!= null && input.Comment.Text !="" ) ? ("title=\"" + input.Comment.Text+"\"") : string.Empty ;
+            string comment = (input.Comment != null && input.Comment.Text != "") ? ("title=\"" + input.Comment.Text + "\"") : string.Empty;
 
 
             if (ColSpan > 0)
                 sb.AppendFormat("<td style=\"{0}\" eth-cell=\"{1}\" colspan=\"{2}\" {4} >{3}</td>",
-                    string.Join(";", cellStyles.Select(x => x.Key + ":" + x.Value)), input.Address, ColSpan, value,comment);
+                    string.Join(";", cellStyles.Select(x => x.Key + ":" + x.Value)), input.Address, ColSpan, value, comment);
             else
-                sb.AppendFormat("<td style=\"{0}\" eth-cell=\"{1}\" {3} >{2}</td>", 
-                    string.Join(";",cellStyles.Select(x => x.Key + ":" + x.Value)), input.Address, value, comment);
+                sb.AppendFormat("<td style=\"{0}\" eth-cell=\"{1}\" {3} >{2}</td>",
+                    string.Join(";", cellStyles.Select(x => x.Key + ":" + x.Value)), input.Address, value, comment);
 
             return sb.ToString();
 
         }
 
-        private void PropertyToStyle(string cssproperty, object value, string defaultommit = "",string cellAddress = "")
+        private void PropertyToStyle(string cssproperty, object value, string defaultValue = "", string cellAddress = "")
         {
             if (value == null)
                 return;
@@ -257,26 +259,19 @@ namespace ExcelToHtml
                 if (temp.Style == ExcelBorderStyle.None)
                     return;
                 else if (temp.Style == ExcelBorderStyle.Thin)
-                    cssItem = "solid 1px";
-                else if (temp.Style == ExcelBorderStyle.Hair)
-                    cssItem = "solid 1px";
+                    cssItem = "solid 1px ";
+                else if (temp.Style == ExcelBorderStyle.Hair || temp.Style == ExcelBorderStyle.Medium)
+                    cssItem = "solid 2px ";
                 else if (temp.Style == ExcelBorderStyle.Thick)
-                    cssItem = "solid 1px";
+                    cssItem = "solid 3px ";
                 else if (temp.Style == ExcelBorderStyle.Dashed)
-                    cssItem = "dashed 1px";
+                    cssItem = "dashed 1px ";
                 else if (temp.Style == ExcelBorderStyle.Dotted)
-                    cssItem = "dotted 1px";
+                    cssItem = "dotted 1px ";
                 else
-                    cssItem = "solid 2px";
+                    cssItem = "solid 2px ";
 
-                //string color = getCellBorderColor(cellAddress,temp);
-
-                if (!string.IsNullOrEmpty(temp.Color.Theme))  //no idea how to get proper theme color
-                    cssItem += " #000";
-                else if (!string.IsNullOrEmpty(temp.Color.Rgb)) //Remov First FF
-                    cssItem += "#" + temp.Color.Rgb.Remove(0, 2);
-                else
-                    cssItem += " #000"; //default color if not defined
+                cssItem += getColor(cellAddress, cssproperty);
 
                 cellStyles.Add(cssproperty, cssItem);
                 return;
@@ -286,94 +281,55 @@ namespace ExcelToHtml
                 cssItem = value.ToString();
             }
 
-            if (cssItem != defaultommit)
+            if (cssItem != defaultValue)
             {
                 if (cssproperty.Contains("size") || cssproperty.Contains("width"))
                 {
-                    cellStyles.Add( cssproperty, cssItem.Replace(",",".") + "px");
+                    cellStyles.Add(cssproperty, cssItem.Replace(",", ".") + "px");
                 }
-                else if (cssproperty.Contains("color")) //Remove First FF
-                {
-                    cellStyles.Add( cssproperty, "#" + cssItem.Remove(0, 2));
-                }
+
                 else
-                    cellStyles.Add( cssproperty, cssItem);
+                    cellStyles.Add(cssproperty, cssItem);
             }
         }
 
-        //private string getCellBorderColor(string cellAddress, ExcelBorderItem border)
-        //{
-
-        //    IXLCell cell = closedWorksheet.Cell(cellAddress);
-        //    if (border.ColorType == XLColorType.Color)
-        //    {
-        //        return border.Color.ToHex();
-        //    }
-        //    else if (cell.Style.Fill.BackgroundColor.ColorType == XLColorType.Indexed)
-        //    {
-        //        if (cell.Style.Fill.BackgroundColor.Color.Name != "Transparent")
-        //            return cell.Style.Fill.BackgroundColor.Color.ToHex();
-
-        //    }
-        //    else  //(cell.Style.Fill.BackgroundColor.ColorType == XLColorType.Theme)
-        //    {
-        //        string value = "";
-        //        if (Theme.TryGetValue(cell.Style.Fill.BackgroundColor.ThemeColor.ToString(), out value))
-        //            return value;
-        //        else
-        //            Console.WriteLine("Theme not found {2} cell:{0}{1}", cell.Address.ColumnLetter, cell.Address.RowNumber, cell.Style.Fill.BackgroundColor.ThemeColor);
-
-        //    }
-        //    return string.Empty;
-        //}
-
-        private  string getCellBackgroundColor( string cellAddress)
+        private string getColor(string address, string type )
         {
+            IXLCell cell = closedWorksheet.Cell(address);
+            XLColor cellColor = null;
 
-            IXLCell cell = closedWorksheet.Cell(cellAddress);
-            if (cell.Style.Fill.BackgroundColor.ColorType == XLColorType.Color)
+            if (type == "background-color")
+                cellColor = cell.Style.Fill.BackgroundColor;
+            else if (type == "color")
+                cellColor = cell.Style.Font.FontColor;
+            else if (type == "border-top")
+                cellColor = cell.Style.Border.TopBorderColor;
+            else if (type == "border-left")
+                cellColor = cell.Style.Border.LeftBorderColor;
+            else if (type == "border-right")
+                cellColor = cell.Style.Border.RightBorderColor;
+            else if (type == "border-bottom")
+                cellColor = cell.Style.Border.BottomBorderColor;
+            else
+                return String.Empty;
+
+            if (cellColor.ColorType == XLColorType.Color)
             {
-                return cell.Style.Fill.BackgroundColor.Color.ToHex();
+                return "#" + cellColor.Color.ToHex().Remove(0, 2);
             }
-            else if (cell.Style.Fill.BackgroundColor.ColorType == XLColorType.Indexed)
+            else if (cellColor.ColorType == XLColorType.Indexed)
             {
-                if (cell.Style.Fill.BackgroundColor.Color.Name != "Transparent")
-                    return cell.Style.Fill.BackgroundColor.Color.ToHex();
+                if (cellColor.Color.Name != "Transparent")
+                    return "#" + cellColor.Color.ToHex().Remove(0, 2);
 
             }
             else  //(cell.Style.Fill.BackgroundColor.ColorType == XLColorType.Theme)
             {
                 string value = "";
-                if (Theme.TryGetValue(cell.Style.Fill.BackgroundColor.ThemeColor.ToString(), out value))
-                    return value;
+                if (Theme.TryGetValue(cellColor.ThemeColor.ToString(), out value))
+                    return "#" + value.Remove(0, 2);
                 else
-                    Console.WriteLine("Theme not found {2} cell:{0}{1}", cell.Address.ColumnLetter, cell.Address.RowNumber, cell.Style.Fill.BackgroundColor.ThemeColor);
-
-            }
-            return string.Empty;
-        }
-
-        private  string getCellTextColor(string cellAddress)
-        {
-
-            IXLCell cell = closedWorksheet.Cell(cellAddress);
-            if (cell.Style.Font.FontColor.ColorType == XLColorType.Color)
-            {
-                return cell.Style.Font.FontColor.Color.ToHex();
-            }
-            else if (cell.Style.Font.FontColor.ColorType == XLColorType.Indexed)
-            {
-                if (cell.Style.Font.FontColor.Color.Name != "Transparent")
-                    return cell.Style.Font.FontColor.Color.ToHex();
-
-            }
-            else  //(cell.Style.Fill.BackgroundColor.ColorType == XLColorType.Theme)
-            {
-                string value = "";
-                if (Theme.TryGetValue(cell.Style.Font.FontColor.ThemeColor.ToString(), out value))
-                    return value;
-                else
-                    Console.WriteLine("Theme not found {2} cell:{0}{1}", cell.Address.ColumnLetter, cell.Address.RowNumber, cell.Style.Font.FontColor.ThemeColor);
+                    Console.WriteLine("Theme not found {2} cell:{0}{1}", cell.Address.ColumnLetter, cell.Address.RowNumber, cellColor.ThemeColor);
 
             }
             return string.Empty;

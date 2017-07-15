@@ -23,8 +23,8 @@ namespace ExcelToHtml.CL
 
 
 
-            //try
-            //{
+            try
+            {
                 //Read Excel File 
                 FileInfo ExcelFile = new FileInfo(ExcelPath);
 
@@ -58,8 +58,8 @@ namespace ExcelToHtml.CL
 
                     var Serializer = new YamlDotNet.Serialization.Serializer();
                     string Yaml = Serializer.Serialize(output);
+                    
 
-                    //For Debug Purpose output
                     File.WriteAllText(DataPath, Yaml);
 
                 }
@@ -68,13 +68,13 @@ namespace ExcelToHtml.CL
                 string html = WorksheetHtml.Execute();
 
                 File.WriteAllText(HtmlPath, html);
-            Console.ReadKey();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("ERROR " + ex.Message);
-            //    Console.ReadKey();
-            //}
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR " + ex.Message);
+                Console.ReadKey();
+            }
 
 
         }
