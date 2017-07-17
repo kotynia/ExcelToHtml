@@ -1,7 +1,7 @@
-# ExcelToHtml.dll , ExcelToHtml.console.exe
+# ExcelToHtml.dll , ExcelToHtml.console.exe 
 Excel To HTML Library and Console Application
 
-# List of Features
+# List of Features (1.3)
 
 - Convert Excel to HTML
 	- Support for .xlsx format (Microsoft Office 2007+) 
@@ -11,13 +11,14 @@ Excel To HTML Library and Console Application
 	- Comments
 	- Injection safe
 - Support for Functions  ( https://epplus.codeplex.com/wikipage?title=Supported%20Functions&referringTitle=Documentation )
-- Optional INPUT/OUTPUT dataset (console application)
+- Calculation Engine
+- Merge object, Json, REST API and excel template, convert to html
 
 # Getting Started
 
 ## ExcelToHtml.dll, Nuget Package https://www.nuget.org/packages/ExcelToHtml
 
-Basic
+Basic Convert excel to HTML
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
@@ -25,7 +26,7 @@ var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
 string html = WorksheetHtml.Convert();
 ```
 
-ExcelToHtml as calculation engine
+ExcelToHtml as calculation engine using dictionary
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
@@ -42,26 +43,33 @@ var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 string html = WorksheetHtml.Convert();
 ```
 
-ExcelToHtml data from url (JSON)
+Merge  data from url (REST API) and excel template, convert to html
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
-WorksheetHtml.debug = true;
+WorksheetHtml.DebugMode = true;
 WorksheetHtml.DataFromUrl("http://nflarrest.com/api/v1/crime");
 string html = WorksheetHtml.Convert();
 ```
 
-ExcelToHtml data from object
+Merge object and excel template, convert to html
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
-DataFromObject(object data); //Your Object
+WorksheetHtml.DataFromObject(object); 
 string html = WorksheetHtml.Convert();
 ```
 
+Merge json and excel tempalte, convert to html 
 
+```c#
+FileInfo newFile = new FileInfo(fullPath);
+var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+WorksheetHtml.DataFromJson(string); 
+string html = WorksheetHtml.Convert();
+```
 
 ## ExcelToHtml.console.exe, Download https://github.com/marcinKotynia/ExcelToHtml/releases
 
@@ -75,7 +83,7 @@ echo Sample 2 webapi
 ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime
 
 echo Sample 3 webapi + debug object
-ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime -debug=true
+ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime
 
 ```
 
@@ -83,7 +91,7 @@ ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1
 
 ## Parameters from text file (Yaml)
 
-Optional you can put file with data for example myExcelFile.xlsx.yaml
+Optional file with data myExcelFile.xlsx.yaml
 
 ```yaml
 # Set cell to 8
@@ -100,7 +108,7 @@ A5: =A2+A3
 
 
 
-# Technical
+# Technical Appendix
 
 ## List of Unsupported Features
 - Vertical merged cells
