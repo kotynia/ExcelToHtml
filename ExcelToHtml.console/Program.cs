@@ -12,7 +12,7 @@ namespace ExcelToHtml.console
 #if DEBUG  //TEST DATA 
             var testdata = new List<string>{
                 @"-t=c:\git\ExcelToHtml\Test\test1.xlsx",
-                    @"-data=https://transit.land//api/v1/changesets/1/change_payloads"
+                @"-data=https://transit.land//api/v1/changesets/1/change_payloads"
             };
             args = testdata.ToArray();
 #endif
@@ -91,11 +91,11 @@ namespace ExcelToHtml.console
             Console.WriteLine(" File Saved {0}", HtmlPath);
             File.WriteAllText(HtmlPath, html);
 
-#if DEBUG //TEST  
+#if DEBUG //DEBUG MODE  
             Console.ReadKey();
 #endif
 
-#if !DEBUG
+#if !DEBUG //DEBUG MODE
             }
             catch (Exception ex)
             {

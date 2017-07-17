@@ -13,10 +13,6 @@ Excel To HTML Library and Console Application
 - Support for Functions  ( https://epplus.codeplex.com/wikipage?title=Supported%20Functions&referringTitle=Documentation )
 - Optional INPUT/OUTPUT dataset (console application)
 
-## Road Map (next versions)
-- List<> to Excel Range
-- code cleanup
-
 # Getting Started
 
 ## ExcelToHtml.dll, Nuget Package https://www.nuget.org/packages/ExcelToHtml
@@ -25,30 +21,15 @@ Basic
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
-var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
 string html = WorksheetHtml.Convert();
-
-//Optional set custom style for table
-//WorksheetHtml.TableStyle =" " ; default "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
-
-//Optional Get Set Cells
-//Dictionary<string, string> InputOutput = new Dictionary<string, string>();
-//InputOutput.Add("A1", "Hello World");  			//set hello world
-//InputOutput.Add("A2", "=2+1");  			//set formula
-//InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Field
-//InputOutput.Add(".A2", null);  				//Output value form A2
-//var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
-
 ```
 
-Advanced
+ExcelToHtml as calculation engine
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
-
-//Optional set custom style for table
-WorksheetHtml.TableStyle =" " ; default "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
 
 //Optional Get Set Cells
 Dictionary<string, string> InputOutput = new Dictionary<string, string>();
@@ -60,6 +41,26 @@ var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 
 string html = WorksheetHtml.Convert();
 ```
+
+ExcelToHtml data from url (JSON)
+
+```c#
+FileInfo newFile = new FileInfo(fullPath);
+var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+WorksheetHtml.debug = true;
+WorksheetHtml.DataFromUrl("http://nflarrest.com/api/v1/crime");
+string html = WorksheetHtml.Convert();
+```
+
+ExcelToHtml data from object
+
+```c#
+FileInfo newFile = new FileInfo(fullPath);
+var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+DataFromObject(object data); //Your Object
+string html = WorksheetHtml.Convert();
+```
+
 
 
 ## ExcelToHtml.console.exe, Download https://github.com/marcinKotynia/ExcelToHtml/releases
