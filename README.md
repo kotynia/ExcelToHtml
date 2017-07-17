@@ -1,7 +1,8 @@
-# ExcelToHtml
+# ExcelToHtml.dll , ExcelToHtml.console.exe
 Excel To HTML Library and Console Application
 
 # List of Features
+
 - Convert Excel to HTML
 	- Support for .xlsx format (Microsoft Office 2007+) 
 	- Excel Properties: Border,border collor, Text-align, background-color, color, font-weight, font-size, width, white-space
@@ -9,21 +10,23 @@ Excel To HTML Library and Console Application
 	- Hidden Rows and columns
 	- Comments
 	- Injection safe
-- Optional INPUT/OUTPUT dataset (see Yaml File Format)
 - Support for Functions  ( https://epplus.codeplex.com/wikipage?title=Supported%20Functions&referringTitle=Documentation )
+- Optional INPUT/OUTPUT dataset (console application)
 
-## Road Map
+## Road Map (next versions)
 - List<> to Excel Range
-- Better handling Border Colors
-
+- code cleanup
 
 # Getting Started
 
-## ExcelToHtml as a Library, Nuget Package https://www.nuget.org/packages/ExcelToHtml
+## ExcelToHtml.dll, Nuget Package https://www.nuget.org/packages/ExcelToHtml
+
+Basic
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+string html = WorksheetHtml.Convert();
 
 //Optional set custom style for table
 //WorksheetHtml.TableStyle =" " ; default "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
@@ -36,30 +39,48 @@ var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 //InputOutput.Add(".A2", null);  				//Output value form A2
 //var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 
+```
+
+Advanced
+
+```c#
+FileInfo newFile = new FileInfo(fullPath);
+var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+
+//Optional set custom style for table
+WorksheetHtml.TableStyle =" " ; default "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
+
+//Optional Get Set Cells
+Dictionary<string, string> InputOutput = new Dictionary<string, string>();
+InputOutput.Add("A1", "Hello World");  			//set hello world
+InputOutput.Add("A2", "=2+1");  			//set formula
+InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Field
+InputOutput.Add(".A2", null);  				//Output value form A2
+var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 
 string html = WorksheetHtml.Convert();
 ```
 
-## ExcelToHtml as a Console Application, Download https://github.com/marcinKotynia/ExcelToHtml/releases
+
+## ExcelToHtml.console.exe, Download https://github.com/marcinKotynia/ExcelToHtml/releases
 
 How to use:
 
 ```bat
-ExcelToHtml.console.exe [Path]
-
-Sample
+echo Sample 1 simple 
 ExcelToHtml.console.exe c:\myExcelFile.xlsx
 
-Output
-ExcelToHtml.console.exe c:\myExcelFile.xlsx.html
+echo Sample 2 webapi
+ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime
 
-Optional
-ExcelToHtml.exe c:\myExcelFile.xlsx.yaml
+echo Sample 3 webapi + debug object
+ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime -debug=true
+
 ```
 
 # Getting Pro
 
-## Parameters from Text file (Yaml)
+## Parameters from text file (Yaml)
 
 Optional you can put file with data for example myExcelFile.xlsx.yaml
 
@@ -95,14 +116,19 @@ There are 3 different scenarios
 
 
 This script will convert background color and font color to rgb colors if you use custom theme
-and colour differ. To use open file in Excel select Alt+F11 Paste and Run code using F5
+and colours. To use 
+
+1. open file in Excel 
+2. Alt+F11 
+3. Paste and Run code using F5
+
+Result: Colors (background,borders,font) will be converted to RGB colors
 
 ```vb
 Sub SheetBackgroundColorsToRgb()
 
 Application.ScreenUpdating = False
 
-'iterate
     For Each Cell In ActiveSheet.UsedRange.Cells
     
 		'Background
@@ -142,16 +168,12 @@ Application.ScreenUpdating = False
 Application.ScreenUpdating = True
 
 End Sub
-
-
-End Sub
 ```
 
 ## Some technology remarks that could help you do even more :)
 - xlsx file format is zip file with embeded xml files (https://en.wikipedia.org/wiki/Office_Open_XML )
-- Libraries
-	- EPPlus http://epplus.codeplex.com/ used currently 
-	- ClosedXml https://github.com/ClosedXML/ClosedXML very active 
-	- https://www.nuget.org/packages/DocumentFormat.OpenXml 
-	- https://simpleooxml.codeplex.com/ 
+- Libraries thet will help you
+	- EPPlus http://epplus.codeplex.com/ 
+	- ClosedXml https://github.com/ClosedXML/ClosedXML 
+	- Microsoft wrapper for handling openxml https://www.nuget.org/packages/DocumentFormat.OpenXml 
 	

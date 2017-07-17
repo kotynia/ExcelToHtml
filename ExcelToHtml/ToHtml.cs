@@ -1,19 +1,26 @@
-﻿using OfficeOpenXml;
+﻿using ClosedXML.Excel; //used from develop branch (fix with loading template )
+using Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
-using OfficeOpenXml.Style;
-using ClosedXML.Excel; //used from develop branch (fix with loading template )
+using System.Net;
+using System.Text;
 
 namespace ExcelToHtml
 {
     public class ToHtml
     {
-
         public string TableStyle = "border-collapse: collapse;font-family: helvetica, arial, sans-serif;";
-        public static Dictionary<string, string> Theme = new Dictionary<string, string>();
+        public Dictionary<string, string> Theme = new Dictionary<string, string>();
+        public bool DebugMode = false;
+
+        //object Data;
+        string ObjectJson;
 
         /// If not specified first used
         private string WorksheetName = String.Empty;
@@ -45,16 +52,17 @@ namespace ExcelToHtml
                 closedWorksheet = workBook.Worksheet(1);//closedxml only temporary to get valid colors
             }
             Theme = ExcelToHtml.Theme.Init();
-
         }
+
+
+
 
         /// <summary>
         /// Render HTML
         /// </summary>
-        /// <returns>Html</returns>
-        public string Execute()
+        public string RenderHtml()
         {
-            //GET TIME
+            //Check Performance
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             //GET DIMENSIONS
@@ -94,11 +102,139 @@ namespace ExcelToHtml
             sb.AppendLine("</table>");
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
-            Console.WriteLine("Total time {0}ms", elapsedMs);
+            Console.WriteLine(" Processing time {0}ms", elapsedMs);
 
             return string.Format("<table  style=\"{0}>\" data-eth-ms=\"{1}\" data-eth-date=\"{2}\">{3}</table>",
                 TableStyle, elapsedMs, DateTime.Now, sb.ToString());
         }
+
+        private void IterateArray(JToken test)
+        {
+            foreach (var sub_obj in test)
+            {
+                if (sub_obj.Children().Count() > 0)
+                {
+                    IterateArray(sub_obj);
+
+                }
+                else
+                {
+                    Console.WriteLine( "  {0}", sub_obj.Path);
+                }
+            }
+        }
+
+        private int CountElements(JToken test)
+        {
+            if (test == null)
+                return 0;
+
+            return test.Children().Count();
+        }
+
+        void CopyRow(int rowFrom, int rows)
+        {
+
+            WorkSheet.InsertRow(rowFrom + 1, rows, rowFrom);
+            var start = WorkSheet.Dimension.Start;
+            var end = WorkSheet.Dimension.End;
+
+            //iterate all
+            for (int row = rowFrom + 1; row <= rowFrom + rows; row++)
+            {
+                for (int col = start.Column; col <= end.Column; col++)
+                {
+                    //copy from template
+                    WorkSheet.Cells[row, col].Value = WorkSheet.Cells[rowFrom, col].Text.Replace("[!]", "[" + (row - rowFrom) + "]");
+                }
+            }
+
+            //fill initial row
+            for (int col = start.Column; col <= end.Column; col++)
+            {
+                WorkSheet.Cells[rowFrom, col].Value = WorkSheet.Cells[rowFrom, col].Text.Replace("[!]", "[0]");
+            }
+
+        }
+
+
+
+        public void DataFromObject(object data)
+        {
+            ObjectJson = JsonConvert.SerializeObject(data, Formatting.None);
+        }
+
+
+        public void DataFromUrl(string url)
+        {
+            using (WebClient wc = new WebClient())
+            {
+                ObjectJson = wc.DownloadString(url);
+                ObjectJson = @"{""d"":[" + ObjectJson + "]}";
+            }
+            DataFromJson(ObjectJson);
+        }
+
+
+        public void DataFromJson(string Json)
+        {
+
+            JObject obj = JObject.Parse(ObjectJson);
+
+            if (this.DebugMode)
+                IterateArray(obj);
+
+            var start = WorkSheet.Dimension.Start;
+            var end = WorkSheet.Dimension.End;
+
+            int _endRow = WorkSheet.Dimension.End.Row; // Template will extend umber of rows
+
+            for (int row = start.Row; row <= _endRow; row++)
+            {
+                if (!WorkSheet.Row(row).Hidden)
+                {
+                    for (int col = start.Column; col <= end.Column; col++)
+                    {
+                        var d = WorkSheet.Cells[row, col];
+                        if (d.Text.StartsWith("[[")) //found
+                        {
+
+                            string path = d.Text.Replace("[[", "").Replace("]]", "");
+
+                            //count items
+                            if (path.Contains("[!]"))
+                            {
+                                string test = path.SubstringBefore("[!]");
+                                JToken token1 = obj.SelectToken(test);
+                                int rowsToCopy = CountElements(token1);
+                                if (rowsToCopy > 0)// Spawn  rows
+                                {
+                                    _endRow += rowsToCopy;
+                                    CopyRow(row, rowsToCopy - 1);
+
+                                    path = d.Text.Replace("[[", "").Replace("]]", ""); //read one more time value changed
+                                                                                       // row += rowsToCopy - 1; //skip created rows
+                                                                                       //  break;
+                                }
+                            }
+
+                            if (!path.Contains("[!]"))
+                            {
+                                JToken token = obj.SelectToken(path);
+
+                                if (token != null)
+                                {
+
+                                    d.Value = token.ToString();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         /// <summary>
         /// Set Cell Values
@@ -107,9 +243,13 @@ namespace ExcelToHtml
         /// A5 =A2+A3
         /// [[TempalteField]] Test template
         /// </summary>
-        /// <param name="data"></param>
-        public Dictionary<string, string> GetSetCells(Dictionary<string, string> data)
+        public Dictionary<string, string> DataGetSet(Dictionary<string, string> data)
         {
+
+
+            if (data == null)
+                return null;
+
             //Dicionary to Excel
             foreach (var item in data)
             {
@@ -158,6 +298,7 @@ namespace ExcelToHtml
                 }
 
             }
+
 
             return data;
 
@@ -211,8 +352,8 @@ namespace ExcelToHtml
             //Colors
             //Not properly implemented in Epplus  using ClosedXML
 
-            PropertyToStyle("background-color", getColor(input.Address, "background-color"));
-            PropertyToStyle("color", getColor(input.Address, "color"));
+            PropertyToStyle("background-color", GetColor(input.Address, "background-color"));
+            PropertyToStyle("color", GetColor(input.Address, "color"));
 
 
             PropertyToStyle("font-weight", input.Style.Font.Bold == true ? "bold" : "");
@@ -271,7 +412,7 @@ namespace ExcelToHtml
                 else
                     cssItem = "solid 2px ";
 
-                cssItem += getColor(cellAddress, cssproperty);
+                cssItem += GetColor(cellAddress, cssproperty);
 
                 cellStyles.Add(cssproperty, cssItem);
                 return;
@@ -293,7 +434,7 @@ namespace ExcelToHtml
             }
         }
 
-        private string getColor(string address, string type )
+        private string GetColor(string address, string type)
         {
             IXLCell cell = closedWorksheet.Cell(address);
             XLColor cellColor = null;
