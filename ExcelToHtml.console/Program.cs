@@ -13,8 +13,9 @@ namespace ExcelToHtml.console
 #if DEBUG  //TEST DATA 
             var testdata = new List<string>{
                 @"-t=c:\git\ExcelToHtml\Test\test1.xlsx",
-                @"-data=https://transit.land//api/v1/changesets/1/change_payloads",
-                @"-output=pdf"
+                @"-data=http://nflarrest.com/api/v1/crime"
+               // @"-data=https://transit.land//api/v1/changesets/1/change_payloads",
+               // @"-output=pdf"
             };
             args = testdata.ToArray();
 #endif
@@ -24,7 +25,7 @@ namespace ExcelToHtml.console
             string ExcelPath;
             string DataUrl;
             string Output = "html";
-
+            string OutputPath;
 
             if (args.Length == 1)
                 ExcelPath = args[0];
@@ -44,77 +45,86 @@ namespace ExcelToHtml.console
             {
 #endif
 
-            Console.WriteLine(" Processing {0}", ExcelPath);
+                Console.WriteLine(" Processing {0}", ExcelPath);
 
-            //Read Excel File 
-            FileInfo ExcelFile = new FileInfo(ExcelPath);
-
-
-            var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
-
-            WorksheetHtml.DebugMode = true;
-
-            //Read Data Simple JSON cell,value
-            FileInfo DataFile = new FileInfo(DataPath);
-            if (!DataFile.Exists)
-            {
-                Console.WriteLine(" Loading optional configuration {0} - Not found.", DataFile);
-            }
-            else
-            {
-                string Data = File.ReadAllText(DataPath);
-
-                //Read Data From Yaml
-                var DeSerializer = new YamlDotNet.Serialization.Deserializer();
-                Dictionary<string, string> Cells = DeSerializer.Deserialize<Dictionary<string, string>>(Data);
-
-                //Get Set Cells and write to Yaml
-                var output = WorksheetHtml.DataGetSet(Cells);
-                var Serializer = new YamlDotNet.Serialization.Serializer();
-                string Yaml = Serializer.Serialize(output);
-                File.WriteAllText(DataPath, Yaml);
-            }
-
-            ExcelToHtml.console.Company test = new ExcelToHtml.console.Company();
+                //Read Excel File 
+                FileInfo ExcelFile = new FileInfo(ExcelPath);
 
 
-            if (arguments.TryGetValue("-data", out DataUrl))
-                WorksheetHtml.DataFromUrl(DataUrl);
+                var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
 
+                WorksheetHtml.DebugMode = true;
 
-            arguments.TryGetValue("-output", out Output);
-
-            if (Output.ToLower() == "html")
-            {
-                string html = WorksheetHtml.GetHtml();
-                File.WriteAllText(ExcelPath + "." + Output, html);
-
-            }
-            else if (Output.ToLower() == "htmlw3css")
-            {
-                string html = WorksheetHtml.GetHtml();
-                File.WriteAllText(ExcelPath + "." + Output, String.Format(ExcelToHtml.Helpers.Strings.w3cssHTML, html));
-
-            }
-            else if (Output.ToLower() == "pdf")
-            {
-                string html = String.Format(ExcelToHtml.Helpers.Strings.w3cssHTML, WorksheetHtml.GetHtml());
-                PdfConvert.ConvertHtmlToPdf(new PdfDocument
+                //Read Data Simple JSON cell,value
+                FileInfo DataFile = new FileInfo(DataPath);
+                if (!DataFile.Exists)
                 {
-                    Html = html
-
-                }, new PdfOutput
+                    Console.WriteLine(" Loading optional configuration {0} - Not found.", DataFile);
+                }
+                else
                 {
-                    OutputFilePath = ExcelPath + "." + Output
-                });
+                    string Data = File.ReadAllText(DataPath);
 
-            }
-            else if (Output.ToLower() == "xlsx")
-            {
-                File.WriteAllBytes(ExcelPath + "." + Output, WorksheetHtml.GetBytes());
-            }
+                    //Read Data From Yaml
+                    var DeSerializer = new YamlDotNet.Serialization.Deserializer();
+                    Dictionary<string, string> Cells = DeSerializer.Deserialize<Dictionary<string, string>>(Data);
 
-            Console.WriteLine(" File Saved {0}", ExcelPath + "." + Output);
+                    //Get Set Cells and write to Yaml
+                    var output = WorksheetHtml.DataGetSet(Cells);
+                    var Serializer = new YamlDotNet.Serialization.Serializer();
+                    string Yaml = Serializer.Serialize(output);
+                    File.WriteAllText(DataPath, Yaml);
+                }
+
+                ExcelToHtml.console.Company test = new ExcelToHtml.console.Company();
+
+
+                if (arguments.TryGetValue("-data", out DataUrl))
+                    WorksheetHtml.DataFromUrl(DataUrl);
+
+                if (!arguments.TryGetValue("-outputpath", out OutputPath))
+                    OutputPath = ExcelPath;
+
+                arguments.TryGetValue("-output", out Output);
+                if (Output == null)
+                    Output = "html";
+
+                if (Output.ToLower() == "html")
+                {
+                    string html = WorksheetHtml.GetHtml();
+                    File.WriteAllText(OutputPath + "." + Output, html);
+
+                }
+                else if (Output.ToLower() == "htmlw3css")
+                {
+                    string html = WorksheetHtml.GetHtml();
+                    File.WriteAllText(OutputPath + ".html", String.Format(ExcelToHtml.Helpers.Strings.w3cssHTML, html));
+
+                }
+                else if (Output.ToLower() == "pdf")
+                {
+                    string html = String.Format(ExcelToHtml.Helpers.Strings.w3cssHTML, WorksheetHtml.GetHtml());
+                    PdfConvert.ConvertHtmlToPdf(new PdfDocument
+                    {
+                        Html = html
+
+                    }, new PdfOutput
+                    {
+                        OutputFilePath = OutputPath + "." + Output
+                    });
+
+                }
+                else if (Output.ToLower() == "xlsx")
+                {
+                    File.WriteAllBytes(OutputPath + "." + Output, WorksheetHtml.GetBytes());
+                }
+                else
+                {
+                    throw new Exception("-output expected pdf,xlsx,html,htmlw3css");
+
+                }
+
+                Console.WriteLine(" File Saved {0}", OutputPath + "." + Output);
 
 
 #if DEBUG //DEBUG MODE  

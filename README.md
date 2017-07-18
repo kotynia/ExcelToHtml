@@ -93,6 +93,10 @@ exceltohtml.console.exe Test1.xlsx
 exceltohtml.console.exe -t=Test1.xlsx -output=xlsx
 @Echo Output Test1.xlsx.xlsx
 
+@Echo Get html PAGE with https://www.w3schools.com/w3css/default.asp stylesheet
+exceltohtml.console.exe -t=Test1.xlsx -output=htmlw3css
+@Echo Output Test1.xlsx.html
+
 @Echo Get PDF !! Warning require https://wkhtmltopdf.org/downloads.html  
 exceltohtml.console.exe -t=Test1.xlsx -output=pdf
 @Echo  Output Test1.xlsx.pdf
@@ -149,21 +153,21 @@ To use this data you can put following template fields
 - *[[d[0][!].arrest_count]]* will render to list of elements from arrest_count
 - *[[d[0][0].arrest_count]]* will render to element value 187
 
-# Versions
+# Evolution 
 
 Excel ScreenShot
 ![Image](Test/Test1%20ExcelToHtml.png?raw=true)
 
-Result version 1.0.0
+Version 1.0.0 result
 ![1.0.0](Test/Test1%20ExcelToHtml1.0.0.png?raw=true)
 
-Result version 1.1.0
+Version 1.1.0 result
 ![1.1.0](/Test/Test1%20ExcelToHtml1.1.0.png?raw=true)
 
-Result version 1.2.0
+Version 1.2.0 result
 ![1.2.0](/Test/Test1%20ExcelToHtml1.2.0.png?raw=true)
 
-Result version 1.3.0
+Version 1.3.0 result
 ![1.3.0](/Test/Test1%20ExcelToHtml1.3.0.png?raw=true)
 
 # Technical Appendix
