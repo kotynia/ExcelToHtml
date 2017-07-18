@@ -26,7 +26,7 @@ var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
 string html = WorksheetHtml.Convert();
 ```
 
-ExcelToHtml as calculation engine using dictionary
+ExcelToHtml as calculation engine InputOutput
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
@@ -43,32 +43,41 @@ var output = WorksheetHtml.GetSetCells(InputOutput);	//Output
 string html = WorksheetHtml.Convert();
 ```
 
-Merge  data from url (REST API) and excel template, convert to html
+Merge REST API data and excel template, get html
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 WorksheetHtml.DebugMode = true;
 WorksheetHtml.DataFromUrl("http://nflarrest.com/api/v1/crime");
-string html = WorksheetHtml.Convert();
+string html = WorksheetHtml.GetHtml();
 ```
 
-Merge object and excel template, convert to html
+Merge object and excel template, get html
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 WorksheetHtml.DataFromObject(object); 
-string html = WorksheetHtml.Convert();
+string html = WorksheetHtml.GetHtml();
 ```
 
-Merge json and excel tempalte, convert to html 
+Merge json and excel template, get html 
 
 ```c#
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 WorksheetHtml.DataFromJson(string); 
-string html = WorksheetHtml.Convert();
+string html = WorksheetHtml.GetHtml();
+```
+
+Merge json and excel template, get Excel
+
+```c#
+FileInfo newFile = new FileInfo(fullPath);
+var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
+WorksheetHtml.DataFromJson(string); 
+string html = WorksheetHtml.GetBytes();
 ```
 
 ## ExcelToHtml.console.exe, Download https://github.com/marcinKotynia/ExcelToHtml/releases
@@ -76,14 +85,22 @@ string html = WorksheetHtml.Convert();
 How to use:
 
 ```bat
-echo Sample 1 simple 
-ExcelToHtml.console.exe c:\myExcelFile.xlsx
+@Echo Get HTML
+exceltohtml.console.exe Test1.xlsx
+@Echo Output Test1.xlsx.html
 
-echo Sample 2 webapi
-ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime
+@Echo Get XLSX
+exceltohtml.console.exe -t=Test1.xlsx -output=xlsx
+@Echo Output Test1.xlsx.xlsx
 
-echo Sample 3 webapi + debug object
-ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1/crime
+@Echo Get PDF !! Warning require https://wkhtmltopdf.org/downloads.html  
+exceltohtml.console.exe -t=Test1.xlsx -output=pdf
+@Echo  Output Test1.xlsx.pdf
+
+
+@Echo Convert and Merge data from url (REST API) 
+exceltohtml.console.exe -t=Test1.xlsx  -data=http://nflarrest.com/api/v1/crime
+@Echo Output Test1.xlsx.html
 
 ```
 
@@ -91,7 +108,7 @@ ExcelToHtml.console.exe -t=c:\myExcelFile.xlsx -data=http://nflarrest.com/api/v1
 
 ## Parameters from text file (Yaml)
 
-Optional file with data myExcelFile.xlsx.yaml
+Optional parameters for file with data Test1.xlsx.yaml
 
 ```yaml
 # Set cell to 8
@@ -106,13 +123,38 @@ A5: =A2+A3
 .A5: 15
 ```
 
+## Merging Object or JSON 
+
+ExcelToHtml can use any object or JSON.
+Example will merge data from public REST API into Excel
+
+```bat
+exceltohtml.console.exe -t=Test1.xlsx  -data=http://nflarrest.com/api/v1/crime
+```
+
+```JSON
+[
+{"Category":"DUI","arrest_count":"187"},
+{"Category":"Drugs","arrest_count":"93"},
+{"Category":"Domestic violence","arrest_count":"84"},
+{"Category":"Assault","arrest_count":"65"},
+{"Category":"Disorderly conduct","arrest_count":"38"},
+{"Category":"Gun","arrest_count":"26"}
+]
+```
+
+To use this data you can put following template fields
+
+- *[[d[0][!].Category]]* will render to list of elements from Category
+- *[[d[0][!].arrest_count]]* will render to list of elements from arrest_count
+- *[[d[0][0].arrest_count]]* will render to element value 187
 
 
 # Technical Appendix
 
 ## List of Unsupported Features
 - Vertical merged cells
-- Charts
+- Charts 
 - Images
 
 ## Colors and Themes
