@@ -8,10 +8,10 @@
     <licenseUrl>https://github.com/marcinKotynia/ExcelToHtml/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/marcinKotynia/ExcelToHtml</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Excel To Html</description>
-    <releaseNotes>Documentation, fix</releaseNotes>
+    <description>Convert Excel to Html, PDF. Use Rest API. Use as a template, calculation engine.</description>
+    <releaseNotes>see https://github.com/marcinKotynia/ExcelToHtml</releaseNotes>
     <copyright>Copyright 2017</copyright>
-    <tags>excel html xlsx</tags>
+    <tags>excel html xlsx wkhtml</tags>
 
   </metadata>
 </package>
