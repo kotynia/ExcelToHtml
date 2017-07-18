@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ExcelToHtml
+namespace ExcelToHtml.Helpers
 {
-    public static class Helpers
+    public static class cList
     {
 
         public static Byte[] ListToExcel<T>(List<T> query)
@@ -45,8 +45,6 @@ namespace ExcelToHtml
                 return pck.GetAsByteArray();
             }
         }
-
-
 
 
     }

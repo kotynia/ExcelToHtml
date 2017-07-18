@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extensions
+namespace ExcelToHtml.Helpers
 {
-        internal static class cString
+        public static class cString
         {
             #region String extensions
 

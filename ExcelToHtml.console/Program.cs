@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ExcelToHtml.Helpers.WkHtmlToPdf;
 
 namespace ExcelToHtml.console
 {
@@ -12,7 +13,8 @@ namespace ExcelToHtml.console
 #if DEBUG  //TEST DATA 
             var testdata = new List<string>{
                 @"-t=c:\git\ExcelToHtml\Test\test1.xlsx",
-                @"-data=https://transit.land//api/v1/changesets/1/change_payloads"
+                @"-data=https://transit.land//api/v1/changesets/1/change_payloads",
+                @"-output=pdf"
             };
             args = testdata.ToArray();
 #endif
@@ -21,6 +23,7 @@ namespace ExcelToHtml.console
             var arguments = ResolveArguments(args);
             string ExcelPath;
             string DataUrl;
+            string Output = "html";
 
 
             if (args.Length == 1)
@@ -29,7 +32,6 @@ namespace ExcelToHtml.console
                 arguments.TryGetValue("-t", out ExcelPath);
 
             string DataPath = ExcelPath + ".yaml";
-            string HtmlPath = ExcelPath + ".html";
 
 
             Console.WriteLine("ExcelToHtml https://github.com/marcinKotynia/ExcelToHtml");
@@ -60,13 +62,6 @@ namespace ExcelToHtml.console
             }
             else
             {
-
-                //Dictionary<string, string> Cells = new Dictionary<string, string>();
-                //InputOutput.Add("A1", "Hello World");  //set hello world
-                //InputOutput.Add("A2", "=2+1");  //set formula
-                //InputOutput.Add("[[TemplateField]]", "HelloTemplate");  //FillTempalte Filed
-                //InputOutput.Add(".A2", null);  //Output value form A2
-
                 string Data = File.ReadAllText(DataPath);
 
                 //Read Data From Yaml
@@ -86,10 +81,41 @@ namespace ExcelToHtml.console
             if (arguments.TryGetValue("-data", out DataUrl))
                 WorksheetHtml.DataFromUrl(DataUrl);
 
-            string html = WorksheetHtml.RenderHtml();
 
-            Console.WriteLine(" File Saved {0}", HtmlPath);
-            File.WriteAllText(HtmlPath, html);
+            arguments.TryGetValue("-output", out Output);
+
+            if (Output.ToLower() == "html")
+            {
+                string html = WorksheetHtml.GetHtml();
+                File.WriteAllText(ExcelPath + "." + Output, html);
+
+            }
+            else if (Output.ToLower() == "htmlw3css")
+            {
+                string html = WorksheetHtml.GetHtml();
+                File.WriteAllText(ExcelPath + "." + Output, String.Format(ExcelToHtml.Helpers.Strings.w3cssHTML, html));
+
+            }
+            else if (Output.ToLower() == "pdf")
+            {
+                string html = String.Format(ExcelToHtml.Helpers.Strings.w3cssHTML, WorksheetHtml.GetHtml());
+                PdfConvert.ConvertHtmlToPdf(new PdfDocument
+                {
+                    Html = html
+
+                }, new PdfOutput
+                {
+                    OutputFilePath = ExcelPath + "." + Output
+                });
+
+            }
+            else if (Output.ToLower() == "xlsx")
+            {
+                File.WriteAllBytes(ExcelPath + "." + Output, WorksheetHtml.GetBytes());
+            }
+
+            Console.WriteLine(" File Saved {0}", ExcelPath + "." + Output);
+
 
 #if DEBUG //DEBUG MODE  
             Console.ReadKey();

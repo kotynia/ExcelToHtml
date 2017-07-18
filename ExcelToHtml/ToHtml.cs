@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel; //used from develop branch (fix with loading template )
-using Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OfficeOpenXml;
@@ -10,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using ExcelToHtml.Helpers;
 
 namespace ExcelToHtml
 {
@@ -24,12 +24,11 @@ namespace ExcelToHtml
 
         /// If not specified first used
         private string WorksheetName = String.Empty;
-        ExcelPackage Excel;
-        ExcelWorksheet WorkSheet;
+        public ExcelPackage Excel;
+         ExcelWorksheet WorkSheet;
         IXLWorksheet closedWorksheet; //closedxml  to get valid colors
         private Dictionary<string, string> TemplateFieldList;
         private Dictionary<string, string> cellStyles;
-
 
         public ToHtml(FileInfo excelFile, string WorkSheetName = null)
         {
@@ -54,13 +53,10 @@ namespace ExcelToHtml
             Theme = ExcelToHtml.Theme.Init();
         }
 
-
-
-
         /// <summary>
         /// Render HTML
         /// </summary>
-        public string RenderHtml()
+        public string GetHtml()
         {
             //Check Performance
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -106,6 +102,15 @@ namespace ExcelToHtml
 
             return string.Format("<table  style=\"{0}>\" data-eth-ms=\"{1}\" data-eth-date=\"{2}\">{3}</table>",
                 TableStyle, elapsedMs, DateTime.Now, sb.ToString());
+        }
+
+
+        /// <summary>
+        /// Get Excel
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetBytes() {
+            return Excel.GetAsByteArray();
         }
 
         private void IterateArray(JToken test)
