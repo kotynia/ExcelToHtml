@@ -61,6 +61,8 @@ namespace ExcelToHtml
             //Check Performance
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
+        
+
             //GET DIMENSIONS
             var start = WorkSheet.Dimension.Start;
             var end = WorkSheet.Dimension.End;
@@ -110,6 +112,8 @@ namespace ExcelToHtml
         /// </summary>
         /// <returns></returns>
         public byte[] GetBytes() {
+            
+
             return Excel.GetAsByteArray();
         }
 
@@ -227,16 +231,23 @@ namespace ExcelToHtml
                             {
                                 JToken token = obj.SelectToken(path);
 
-                                if (token != null)
+                                //if more than one for example array do nothing
+                                if (token != null && !token.HasValues)
                                 {
-
-                                    d.Value = token.ToString();
+                                        decimal myDec;
+                                        if (decimal.TryParse(token.ToString(), out myDec))
+                                            d.Value = myDec;
+                                        else
+                                            d.Value = token.ToString();
+                                   
                                 }
                             }
                         }
                     }
                 }
             }
+            
+            this.CalculateWorkbook();
         }
 
 
@@ -287,8 +298,7 @@ namespace ExcelToHtml
 
             }
 
-            //Probably Important to Calculate before get 
-            WorkSheet.Calculate();
+            this.CalculateWorkbook();
 
             string[] keys = data.Keys.ToArray();
 
@@ -307,6 +317,12 @@ namespace ExcelToHtml
 
             return data;
 
+        }
+
+
+        private void CalculateWorkbook() {
+            foreach (var _tempWorksheet in Excel.Workbook.Worksheets)
+                _tempWorksheet.Calculate();
         }
 
         /// <summary>

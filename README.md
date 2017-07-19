@@ -77,7 +77,7 @@ Merge json and excel template, get Excel
 FileInfo newFile = new FileInfo(fullPath);
 var WorksheetHtml =  new ExcelToHtml.ToHtml(ExcelFile);
 WorksheetHtml.DataFromJson(string); 
-string html = WorksheetHtml.GetBytes();
+Bytes[] html = WorksheetHtml.GetBytes();
 ```
 
 ## ExcelToHtml.console.exe, Download https://github.com/marcinKotynia/ExcelToHtml/releases
