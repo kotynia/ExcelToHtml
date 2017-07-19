@@ -25,7 +25,7 @@ namespace ExcelToHtml
         /// If not specified first used
         private string WorksheetName = String.Empty;
         public ExcelPackage Excel;
-         ExcelWorksheet WorkSheet;
+        ExcelWorksheet WorkSheet;
         IXLWorksheet closedWorksheet; //closedxml  to get valid colors
         private Dictionary<string, string> TemplateFieldList;
         private Dictionary<string, string> cellStyles;
@@ -61,7 +61,7 @@ namespace ExcelToHtml
             //Check Performance
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-        
+
 
             //GET DIMENSIONS
             var start = WorkSheet.Dimension.Start;
@@ -111,8 +111,9 @@ namespace ExcelToHtml
         /// Get Excel
         /// </summary>
         /// <returns></returns>
-        public byte[] GetBytes() {
-            
+        public byte[] GetBytes()
+        {
+
 
             return Excel.GetAsByteArray();
         }
@@ -128,7 +129,7 @@ namespace ExcelToHtml
                 }
                 else
                 {
-                    Console.WriteLine( "  {0}", sub_obj.Path);
+                    Console.WriteLine("  {0}", sub_obj.Path);
                 }
             }
         }
@@ -154,14 +155,24 @@ namespace ExcelToHtml
                 for (int col = start.Column; col <= end.Column; col++)
                 {
                     //copy from template
-                    WorkSheet.Cells[row, col].Value = WorkSheet.Cells[rowFrom, col].Text.Replace("[!]", "[" + (row - rowFrom) + "]");
+                    if (WorkSheet.Cells[rowFrom, col].Text.StartsWith("[["))
+                        WorkSheet.Cells[row, col].Value = WorkSheet.Cells[rowFrom, col].Text.Replace("[!]", "[" + (row - rowFrom) + "]");
+
+
+                    //We need to replicate EXcel Behavior for example 
+                    //Formula "=A1+1" will be stored in row1 = A1+1 in  row2  A2+1
+                    if (!string.IsNullOrEmpty(WorkSheet.Cells[rowFrom, col].Formula))
+                    {
+                        WorkSheet.Cells[row, col].FormulaR1C1=  WorkSheet.Cells[rowFrom, col].FormulaR1C1;
+                    }
                 }
             }
 
             //fill initial row
             for (int col = start.Column; col <= end.Column; col++)
             {
-                WorkSheet.Cells[rowFrom, col].Value = WorkSheet.Cells[rowFrom, col].Text.Replace("[!]", "[0]");
+                if (WorkSheet.Cells[rowFrom, col].Text.StartsWith("[["))
+                    WorkSheet.Cells[rowFrom, col].Value = WorkSheet.Cells[rowFrom, col].Text.Replace("[!]", "[0]");
             }
 
         }
@@ -176,6 +187,8 @@ namespace ExcelToHtml
 
         public void DataFromUrl(string url)
         {
+            Console.WriteLine("Connecting to {0}", url);
+
             using (WebClient wc = new WebClient())
             {
                 ObjectJson = wc.DownloadString(url);
@@ -205,11 +218,22 @@ namespace ExcelToHtml
                     for (int col = start.Column; col <= end.Column; col++)
                     {
                         var d = WorkSheet.Cells[row, col];
-                        if (d.Text.StartsWith("[[")) //found
+                        string path = string.Empty;
+                        int type = 0;
+                        if (d.Text.StartsWith("[["))
                         {
+                            type = 1;
+                            path = d.Text.Replace("[[", "").Replace("]]", "");
+                        }
+                        else if (d.Comment != null && d.Comment.Text.StartsWith("[["))
+                        {
+                            type = 2;
+                            path = d.Comment.Text.Replace("[[", "").Replace("]]", "");
+                        }
 
-                            string path = d.Text.Replace("[[", "").Replace("]]", "");
 
+                        if (type > 0) //found
+                        {
                             //count items
                             if (path.Contains("[!]"))
                             {
@@ -221,9 +245,16 @@ namespace ExcelToHtml
                                     _endRow += rowsToCopy;
                                     CopyRow(row, rowsToCopy - 1);
 
-                                    path = d.Text.Replace("[[", "").Replace("]]", ""); //read one more time value changed
-                                                                                       // row += rowsToCopy - 1; //skip created rows
-                                                                                       //  break;
+                                    if (type == 1)
+                                    {
+                                        path = d.Text.Replace("[[", "").Replace("]]", ""); //read one more time value changed
+                                                                                           // row += rowsToCopy - 1; //skip created rows
+                                    }
+                                    else if (type == 2)
+                                    {
+                                        path = d.Comment.Text.Replace("[[", "").Replace("]]", ""); //read one more time value changed
+                                                                                                   // row += rowsToCopy - 1; //skip created rows
+                                    }
                                 }
                             }
 
@@ -234,19 +265,19 @@ namespace ExcelToHtml
                                 //if more than one for example array do nothing
                                 if (token != null && !token.HasValues)
                                 {
-                                        decimal myDec;
-                                        if (decimal.TryParse(token.ToString(), out myDec))
-                                            d.Value = myDec;
-                                        else
-                                            d.Value = token.ToString();
-                                   
+                                    decimal myDec;
+                                    if (decimal.TryParse(token.ToString(), out myDec))
+                                        d.Value = myDec;
+                                    else
+                                        d.Value = token.ToString();
+
                                 }
                             }
                         }
                     }
                 }
             }
-            
+           
             this.CalculateWorkbook();
         }
 
@@ -320,7 +351,8 @@ namespace ExcelToHtml
         }
 
 
-        private void CalculateWorkbook() {
+        private void CalculateWorkbook()
+        {
             foreach (var _tempWorksheet in Excel.Workbook.Worksheets)
                 _tempWorksheet.Calculate();
         }
