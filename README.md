@@ -21,9 +21,9 @@ Excel To HTML Library and Console Application
 Basic Convert excel to HTML
 
 ```c#
-FileInfo newFile = new FileInfo(fullPath);
-var WorksheetHtml = new ExcelToHtml.ToHtml(ExcelFile);
-string html = WorksheetHtml.Convert();
+FileInfo excelfile = new FileInfo(path);
+var WorksheetHtml = new ExcelToHtml.ToHtml(excelfile);
+string html = WorksheetHtml.GetHtml();
 ```
 
 ExcelToHtml as calculation engine InputOutput
