@@ -12,8 +12,8 @@ namespace ExcelToHtml.console
 
 #if DEBUG  //TEST DATA 
             var testdata = new List<string>{
-                @"-t=c:\git\ExcelToHtml\Test\test1.xlsx",
-                @"-data=http://nflarrest.com/api/v1/crime"
+                @"c:\git\ExcelToHtml\Test\default1.xlsx"
+             //   @"-data=http://nflarrest.com/api/v1/crime"
                // @"-data=https://transit.land//api/v1/changesets/1/change_payloads",
                // @"-output=pdf"
             };
@@ -76,7 +76,7 @@ namespace ExcelToHtml.console
                     File.WriteAllText(DataPath, Yaml);
                 }
 
-                ExcelToHtml.console.Company test = new ExcelToHtml.console.Company();
+               // ExcelToHtml.console.Company test = new ExcelToHtml.console.Company();
 
 
                 if (arguments.TryGetValue("-data", out DataUrl))

@@ -61,11 +61,35 @@ namespace ExcelToHtml
             //Check Performance
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-
-
             //GET DIMENSIONS
             var start = WorkSheet.Dimension.Start;
             var end = WorkSheet.Dimension.End;
+
+            //Detect based on values not styles
+            //int optimizedEndRow = 1;
+            //int optimizedEndCol = 1;
+
+            ////Optimize range 
+            //for (int row = start.Row; row <= end.Row; row++)
+            //{
+            //    for (int col = start.Column; col <= end.Column; col++)
+            //    {
+            //        var d = WorkSheet.Cells[row, col];
+
+            //        if (!string.IsNullOrEmpty(d.Text) || d.Value != null)
+            //        {
+            //            if (row > optimizedEndRow)
+            //                optimizedEndRow = row;
+
+            //            if (col > optimizedEndCol)
+            //                optimizedEndCol = col;
+            //            // endOptimized = d.End;
+            //        }
+            //    }
+            //}
+
+            //end = new ExcelCellAddress(optimizedEndRow, optimizedEndCol);
+
             StringBuilder sb = new StringBuilder();
 
             // Row by row
@@ -163,7 +187,7 @@ namespace ExcelToHtml
                     //Formula "=A1+1" will be stored in row1 = A1+1 in  row2  A2+1
                     if (!string.IsNullOrEmpty(WorkSheet.Cells[rowFrom, col].Formula))
                     {
-                        WorkSheet.Cells[row, col].FormulaR1C1=  WorkSheet.Cells[rowFrom, col].FormulaR1C1;
+                        WorkSheet.Cells[row, col].FormulaR1C1 = WorkSheet.Cells[rowFrom, col].FormulaR1C1;
                     }
                 }
             }
@@ -277,7 +301,7 @@ namespace ExcelToHtml
                     }
                 }
             }
-           
+
             this.CalculateWorkbook();
         }
 
