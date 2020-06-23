@@ -52,7 +52,39 @@ namespace ExcelToHtml
             }
             Theme = ExcelToHtml.Theme.Init();
         }
+        public ToHtml(string url, string WorkSheetName = null)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new Exception("Specificare un valore per l'url");
+            Stream excelFile = this.getStreamFromUrlXLS(url);
+            if (excelFile == null)
+                throw new Exception("Il file specificato non è valido");
+            Excel = new ExcelPackage(excelFile);
 
+            XLWorkbook workBook = new XLWorkbook(excelFile); //closedxml only temporary to get valid colors
+
+
+            if (!string.IsNullOrEmpty(WorkSheetName))
+            {
+                WorkSheet = Excel.Workbook.Worksheets[WorksheetName];
+                closedWorksheet = workBook.Worksheet(WorksheetName);//closedxml only temporary to get valid colors
+            }
+            else
+            {
+                WorkSheet = Excel.Workbook.Worksheets[1];
+                closedWorksheet = workBook.Worksheet(1);//closedxml only temporary to get valid colors
+            }
+            Theme = ExcelToHtml.Theme.Init();
+        }
+        private Stream getStreamFromUrlXLS(string _url)
+        {
+            WebRequest req = WebRequest.Create(_url);
+            WebResponse resp = req.GetResponse();
+            Stream s= resp.GetResponseStream();
+            MemoryStream ms = new MemoryStream();
+            s.CopyTo(ms);
+            return ms;
+        }
         /// <summary>
         /// Render HTML
         /// </summary>
